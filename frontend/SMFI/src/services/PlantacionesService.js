@@ -24,6 +24,7 @@ export const updatePlantacion = (id, data) => {
     return api.put('/plantaciones/' + id + '/', data);
 }
 
+
 export const deletePlantacion = (id) => {
     return api.delete('/plantaciones/' + id + '/');
 }

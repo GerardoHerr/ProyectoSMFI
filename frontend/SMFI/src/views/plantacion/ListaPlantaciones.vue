@@ -51,7 +51,7 @@
 
           <div class="absolute top-3 right-3 flex gap-2">
             <button @click.stop="openEdit(plantacion)" class="text-sm text-blue-600 hover:text-blue-800">Editar</button>
-            <button @click.stop="eliminarPlantacion(plantacion.id)" class="text-sm text-red-600 hover:text-red-800">Eliminar</button>
+            <button @click.stop="confirmBeforeDelete(plantacion)" class="text-sm text-red-600 hover:text-red-800">Eliminar</button>
           </div>
         </div>
       </div>
@@ -159,6 +159,19 @@
         </div>
       </div>
 
+        <!-- Modal: Confirmación -->
+        <div v-if="confirmModal.show" class="fixed inset-0 z-60 flex items-center justify-center">
+          <div class="absolute inset-0 bg-black opacity-40" @click="cancelConfirm"></div>
+          <div class="bg-white rounded-lg shadow-lg z-10 w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold mb-4">¿Estás seguro?</h3>
+            <p class="text-sm text-gray-600 mb-4">Esta acción no se puede deshacer.</p>
+            <div class="flex justify-end gap-2">
+              <button @click="cancelConfirm" class="px-4 py-2 rounded bg-gray-200">Cancelar</button>
+              <button @click="confirmAction" class="px-4 py-2 rounded bg-red-600 text-white">Sí, confirmar</button>
+            </div>
+          </div>
+        </div>
+
     </div>
   </div>
 </template>
@@ -193,6 +206,7 @@ const form = ref({
 const editModal = ref(false);
 const editingId = ref(null);
 const editForm = ref({ nombre: '', espacio: null, cultivo: '', sensores: [] });
+const confirmModal = ref({ show: false, action: '', plantacion: null });
 
 function isValidName(name) {
   if (!name || typeof name !== 'string') return false;
@@ -332,6 +346,81 @@ function openEdit(plantacion) {
   editModal.value = true;
 }
 
+function confirmBeforeDelete(plantacion) {
+  confirmModal.value = { show: true, action: 'delete', plantacion };
+}
+
+function cancelConfirm() {
+  confirmModal.value = { show: false, action: '', plantacion: null };
+}
+
+async function confirmAction() {
+  const { action, plantacion } = confirmModal.value;
+
+  if (action === 'delete') {
+    try {
+      await deletePlantacion(plantacion.id);
+      await loadPlantaciones();
+      notify('success', 'Plantación eliminada correctamente');
+    } catch (err) {
+      console.error('Error al eliminar plantación:', err);
+      notify('error', 'Error al eliminar la plantación');
+    } finally {
+      cancelConfirm();
+    }
+    return;
+  }
+
+  if (action === 'confirmEdit') {
+    // usuario confirmó guardar los cambios desde el modal de edición
+    // capturamos el id y los datos del formulario ANTES de cerrar modales
+    const idToUpdate = plantacion && plantacion.id ? plantacion.id : editingId.value;
+    const nombreVal = editForm.value.nombre;
+    const espacioVal = editForm.value.espacio;
+    const cultivoVal = editForm.value.cultivo;
+    const sensoresVal = Array.isArray(editForm.value.sensores)
+      ? editForm.value.sensores
+      : (editForm.value.sensores ? [editForm.value.sensores] : []);
+
+    // cerrar modales / confirmaciones
+    cancelConfirm();
+    closeEditModal();
+
+    const payload = {
+      nombre: nombreVal,
+      espacio: Number(espacioVal),
+      cultivo: cultivoVal,
+      sensores: sensoresVal,
+      usuario: usuarios.value.length > 0 ? usuarios.value[0].id : null
+    };
+
+    try {
+      await updatePlantacion(idToUpdate, payload);
+      await loadPlantaciones();
+      notify('success', 'Plantación actualizada correctamente');
+    } catch (err) {
+      console.error('Error al actualizar plantación:', err);
+      // mostrar detalles si vienen del backend
+      if (err.response && err.response.data) {
+        const data = err.response.data;
+        let msg = 'Error al actualizar:';
+        if (typeof data === 'string') msg += ' ' + data;
+        else if (data.non_field_errors) msg += ' ' + data.non_field_errors.join('; ');
+        else {
+          for (const key in data) {
+            if (Array.isArray(data[key])) msg += ` ${key}: ${data[key].join(', ')};`;
+            else msg += ` ${key}: ${data[key]};`;
+          }
+        }
+        notify('error', msg);
+      } else {
+        notify('error', 'Error al actualizar la plantación.');
+      }
+    }
+    return;
+  }
+}
+
 function closeEditModal() {
   editModal.value = false;
   editingId.value = null;
@@ -343,38 +432,8 @@ async function submitEditPlantacion() {
     notify('error', 'El nombre debe contener al menos una letra.');
     return;
   }
-  try {
-    const payload = {
-      nombre: editForm.value.nombre,
-      espacio: Number(editForm.value.espacio),
-      cultivo: editForm.value.cultivo,
-      sensores: editForm.value.sensores,
-      usuario: usuarios.value.length > 0 ? usuarios.value[0].id : null
-    };
-
-    try {
-      await updatePlantacion(editingId.value, payload);
-    } catch (err) {
-      console.warn('Error al actualizar (primera respuesta):', err);
-      if (err.response && err.response.status === 500) {
-        // recargar y verificar si los cambios se aplicaron
-        await loadPlantaciones();
-        notify('success', 'Se actualizaron los datos (verifique).');
-        closeEditModal();
-        return;
-      }
-      notify('error', 'Error al actualizar la plantación.');
-      console.error('Error al actualizar plantación:', err);
-      return;
-    }
-
-    await loadPlantaciones();
-    notify('success', 'Plantación actualizada correctamente');
-    closeEditModal();
-  } catch (err) {
-    console.error('Error inesperado al actualizar plantación:', err);
-    notify('error', 'Error inesperado al actualizar');
-  }
+  // Mostrar modal de confirmación antes de aplicar los cambios
+  confirmModal.value = { show: true, action: 'confirmEdit', plantacion: { id: editingId.value } };
 }
 
 async function eliminarPlantacion(id) {
