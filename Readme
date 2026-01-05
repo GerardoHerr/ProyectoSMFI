@@ -1,0 +1,15 @@
+Backend: 
+
+env/scritp/activate
+pip install Requeriments
+
+
+python manage makemigrations
+python manage migrate
+python manage runserver
+
+
+Fronted: 
+
+cd SMFI
+run dev
