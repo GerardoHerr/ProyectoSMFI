@@ -74,3 +74,4 @@ class Plantacion(models.Model):
     def generar_alerta(self, dato: DatoSensor):
         return None
 
+#comentario
