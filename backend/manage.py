@@ -2,7 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+#edit - solo para commit
 #definir ka confuiguracion para el tipo de entorno
 
 def main():
