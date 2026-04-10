@@ -1,33 +1,22 @@
-# Frontend Dockerfile - Vite + React
-FROM node:20-alpine as builder
-
-WORKDIR /app
-
-# Copiar package.json y package-lock.json
-COPY SMFI/package*.json ./
-
-# Instalar dependencias
-RUN npm install
-
-# Copiar el código
-COPY SMFI/ .
-
-# Build de la aplicación
-RUN npm run build
-
-# Etapa de producción
+# Frontend Dockerfile - Vite + Vue
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar servidor estático (opcional, para servir archivos)
-RUN npm install -g serve
+# Copiar package.json y package-lock.json
+COPY package*.json ./
 
-# Copiar los archivos compilados desde la etapa anterior
-COPY --from=builder /app/dist ./dist
+# Instalar dependencias
+RUN npm install
+
+# Copiar el código fuente (será reemplazado por volúmenes en desarrollo)
+COPY . .
 
 # Exponer puerto
 EXPOSE 5173
+
+# Ejecutar Vite en modo desarrollo
+CMD ["npm", "run", "dev"]
 
 # Comando para ejecutar en desarrollo o servir en producción
 CMD ["npm", "run", "dev", "--", "--host"]

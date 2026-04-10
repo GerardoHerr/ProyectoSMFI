@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--aqhv)nh9+a*p3i=w#&grp)cbyujs)179u0fmn!^o5e4ydpc8@'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure--aqhv)nh9+a*p3i=w#&grp)cbyujs)179u0fmn!^o5e4ydpc8@')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 USE_TZ = True
 TIME_ZONE = 'America/Guayaquil'
@@ -91,12 +92,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'SMFI_DB',
-        'USER': 'user',  # Cambia a tu usuario de MySQL
-        'PASSWORD': 'pass',  # Pon tu contraseña de root aquí
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.environ.get('DB_NAME', 'smfi_db'),
+        'USER': os.environ.get('DB_USER', 'smfi_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'smfi_password'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },

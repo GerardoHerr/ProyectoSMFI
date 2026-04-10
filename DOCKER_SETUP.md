@@ -25,7 +25,7 @@ copy .env.example .env
 
 ### 3. Iniciar los contenedores
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Esto iniciará:
@@ -43,41 +43,41 @@ Esto iniciará:
 ### Ver logs
 ```bash
 # Todos los servicios
-docker-compose logs -f
+docker compose logs -f
 
 # Solo del backend
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Solo del frontend
-docker-compose logs -f frontend
+docker compose logs -f frontend
 
 # Solo de la BD
-docker-compose logs -f db
+docker compose logs -f db
 ```
 
 ### Ejecutar migraciones
 ```bash
-docker-compose exec backend python manage.py migrate
+docker compose exec backend python manage.py migrate
 ```
 
 ### Crear superusuario (admin)
 ```bash
-docker-compose exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py createsuperuser
 ```
 
 ### Detener contenedores
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### Detener y eliminar volúmenes (cuidado: borra datos de BD)
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ### Reconstruir imágenes
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## 🔧 Configuración de Variables de Entorno
