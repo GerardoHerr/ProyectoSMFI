@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Servicio MySQL
+  db:
+    image: mysql:8.0
+    container_name: smfi_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-smfi_db}
+      MYSQL_USER: ${DB_USER:-smfi_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-smfi_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - smfi_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Servicio Backend (Django)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smfi_backend
+    environment:
+      DEBUG: ${DEBUG:-False}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DB_ENGINE: ${DB_ENGINE:-django.db.backends.mysql}
+      DB_NAME: ${DB_NAME:-smfi_db}
+      DB_USER: ${DB_USER:-smfi_user}
+      DB_PASSWORD: ${DB_PASSWORD:-smfi_password}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-this-in-production}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - smfi_network
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # Servicio Frontend (Vite + React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smfi_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/SMFI:/app
+      - /app/node_modules
+    networks:
+      - smfi_network
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+
+volumes:
+  mysql_data:
+
+networks:
+  smfi_network:
+    driver: bridge
