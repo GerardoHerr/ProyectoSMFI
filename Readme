@@ -1,7 +1,637 @@
-Backend: 
+# 🌾 SMFI - Sistema de Monitoreo de Fincas Inteligente
 
-env/scritp/activate
-pip install Requeriments
+Sistema web **profesional y seguro** para monitoreo de plantaciones con:
+- ✅ Autenticación con Argon2id (hashing criptográfico)
+- ✅ Encriptación HTTPS/TLS 1.3
+- ✅ Certificados de confianza (mkcert)
+- ✅ Frontend Vue.js moderno
+- ✅ Backend Django con DRF
+
+---
+
+## 📚 Documentación
+
+### 🚀 **PRINCIPIANTES** - Empieza aquí
+- **[GUIA_PASO_A_PASO.md](GUIA_PASO_A_PASO.md)** - Instalación en 10 minutos (recomendado)
+- **[MKCERT_INICIO_RAPIDO.txt](MKCERT_INICIO_RAPIDO.txt)** - Cheat sheet rápido
+- **[CHECKLIST.html](CHECKLIST.html)** - Checklist interactivo (abre en navegador)
+
+### 🔐 **ENCRIPTACIÓN Y SEGURIDAD**
+- **[MKCERT_TLS_1.3_GUIA.md](MKCERT_TLS_1.3_GUIA.md)** - Guía completa de TLS 1.3
+- **[LOGIN_AUTENTICACION_DOCUMENTACION.md](LOGIN_AUTENTICACION_DOCUMENTACION.md)** - Argon2id explicado
+
+### 🏗️ **ARQUITECTURA**
+- **[ARQUITECTURA_VISUAL.md](ARQUITECTURA_VISUAL.md)** - Diagramas y flujos completos
+- **[RESUMEN_EJECUTIVO.md](RESUMEN_EJECUTIVO.md)** - Resumen técnico
+
+### 📖 **REFERENCIAS**
+- **[INDICE_DOCUMENTACION.md](INDICE_DOCUMENTACION.md)** - Índice completo (¿qué leer?)
+- **[RESUMEN_FINAL.md](RESUMEN_FINAL.md)** - Características y estado
+
+---
+
+## ⚡ INICIO RÁPIDO (5 MINUTOS)
+
+### Paso 1: Instalar mkcert
+```powershell
+# Windows (PowerShell como Admin)
+choco install mkcert
+mkcert -install
+mkcert localhost 127.0.0.1
+```
+
+**macOS/Linux**: Ver [GUIA_PASO_A_PASO.md](GUIA_PASO_A_PASO.md)
+
+### Paso 2: Instalar Dependencias
+```bash
+cd backend
+pip install -r requirements_new.txt
+
+cd ../frontend/SMFI
+npm install
+```
+
+### Paso 3: Ejecutar Backend (Terminal 1)
+```bash
+cd backend
+python run_https.py
+```
+📍 https://localhost:8000
+
+### Paso 4: Ejecutar Frontend (Terminal 2)
+```bash
+cd frontend/SMFI
+npm run dev
+```
+📍 https://localhost:5173
+
+### Paso 5: Probar
+- Abre: **https://localhost:5173**
+- Registra: nuevo usuario
+- Inicia sesión: con credenciales
+- ✅ **SIN ADVERTENCIAS** de certificado
+
+---
+
+## 🔐 Seguridad Implementada
+
+### Hashing de Contraseñas
+- **Algoritmo**: Argon2id (Password Hashing Competition winner)
+- **Salt**: Único por usuario (generado aleatoriamente)
+- **Resistencia**: GPU-resistant, timing-attack safe
+- **Almacenamiento**: Irreversible en BD
+
+### Encriptación de Comunicación
+- **Protocolo**: HTTPS/TLS 1.3 (RFC 8446)
+- **Certificados**: mkcert (confiables automáticamente)
+- **Handshake**: 1-RTT (rápido)
+- **Encriptación**: AES-256-GCM
+
+### Protección de Sesión
+- **localStorage**: token + datos usuario
+- **Cookies**: HTTPONLY, SECURE, SAMESITE
+- **Validación**: Router guard en cada acceso
+
+---
+
+## 🚀 Configuración por Ambiente
+
+### Desarrollo (Ahora)
+```bash
+# Backend - HTTPS
+cd backend
+python run_https.py  # Certificados mkcert locales
+
+# Frontend - HTTPS
+cd frontend/SMFI
+npm run dev  # Vite proxy a backend
+```
+**URL**: https://localhost:5173
+
+### Producción (Próximamente)
+```bash
+# Backend - Gunicorn + Let's Encrypt
+# Frontend - Nginx/Apache + minificado
+# Certificados: Let's Encrypt (gratuito)
+```
+**URL**: https://tudominio.com
+
+---
+
+## 📋 Endpoints de API
+
+### Autenticación
+```
+POST /api/register/
+  {
+    "nombre": "string",
+    "correo": "string@email.com",
+    "password": "string (6+ chars)",
+    "rol_id": 1 (opcional)
+  }
+
+POST /api/login/
+  {
+    "correo": "string@email.com",
+    "password": "string"
+  }
+  → Respuesta: {"success": true, "usuario": {...}}
+
+POST /api/change-password/
+  {
+    "usuario_id": 1,
+    "old_password": "string",
+    "new_password": "string"
+  }
+```
+
+### CRUD Usuarios
+```
+GET /api/usuarios/ - Listar
+POST /api/usuarios/ - Crear
+GET /api/usuarios/{id}/ - Obtener
+PUT /api/usuarios/{id}/ - Actualizar
+DELETE /api/usuarios/{id}/ - Eliminar
+```
+
+---
+
+## 🏗️ Estructura del Proyecto
+
+```
+ProyectoSMFI/
+├── 📚 DOCUMENTACIÓN (Nueva)
+│   ├── GUIA_PASO_A_PASO.md              ← Empieza aquí
+│   ├── CHECKLIST.html                   ← Interactivo
+│   ├── ARQUITECTURA_VISUAL.md           ← Diagramas
+│   ├── MKCERT_TLS_1.3_GUIA.md          ← Seguridad
+│   ├── INDICE_DOCUMENTACION.md          ← Índice
+│   └── ... (más documentos)
+│
+├── 🔐 CERTIFICADOS (Nuevos)
+│   ├── localhost+1.pem                  ← Certificado
+│   ├── localhost+1-key.pem             ← Clave
+│   ├── install-mkcert.bat              ← Script Windows
+│   └── install-mkcert.sh               ← Script Unix
+│
+├── backend/
+│   ├── manage.py
+│   ├── run_https.py                     ← NUEVO: HTTPS/TLS 1.3
+│   ├── requirements_new.txt             ← ACTUALIZADO
+│   ├── users/
+│   │   ├── auth_service.py             ← NUEVO: Argon2id
+│   │   ├── models.py                   ← ACTUALIZADO
+│   │   ├── views.py                    ← ACTUALIZADO
+│   │   └── urls.py                     ← ACTUALIZADO
+│   └── config/
+│       ├── settings/base.py            ← ACTUALIZADO: TLS 1.3
+│       └── urls.py
+│
+└── frontend/SMFI/
+    ├── package.json                    ← ACTUALIZADO
+    ├── vite.config.js                  ← ACTUALIZADO: HTTPS
+    ├── src/
+    │   ├── services/authService.js     ← ACTUALIZADO: Proxy
+    │   ├── views/auth/
+    │   │   ├── Login.vue              ← NUEVO
+    │   │   └── Registro.vue           ← NUEVO
+    │   ├── router/
+    │   │   ├── index.js               ← ACTUALIZADO: Guards
+    │   │   └── modulos/
+    │   │       └── Auth.routes.js     ← NUEVO
+    │   └── components/menuVar.vue     ← ACTUALIZADO
+    └── scripts/generate-certs.js      ← Alternativa
+```
+
+---
+
+## ✅ Checklist de Instalación
+
+Use el checklist interactivo: **[CHECKLIST.html](CHECKLIST.html)**
+
+O marque manualmente:
+- [ ] mkcert instalado
+- [ ] Certificados generados (localhost+1.pem, localhost+1-key.pem)
+- [ ] Backend dependencias instaladas
+- [ ] Frontend dependencias instaladas
+- [ ] Backend ejecutándose (https://localhost:8000)
+- [ ] Frontend ejecutándose (https://localhost:5173)
+- [ ] Accesible SIN advertencias
+- [ ] DevTools muestra TLS 1.3
+- [ ] Registro funciona
+- [ ] Login funciona
+- [ ] Logout funciona
+
+---
+
+## 🔍 Verificar Instalación
+
+### Validar Configuración
+```bash
+python validate_config.py
+```
+Verifica que todos los archivos y configuraciones sean correctas.
+
+### Verificar TLS 1.3
+1. Abre: https://localhost:5173
+2. DevTools (F12) → **Security** → **Protocol**: **TLS 1.3** ✅
+
+---
+
+## 📊 Características
+
+### Autenticación
+- ✅ Registro de usuarios
+- ✅ Login seguro
+- ✅ Cambio de contraseña
+- ✅ Router guards (rutas protegidas)
+- ✅ Logout seguro
+
+### Seguridad
+- ✅ Argon2id password hashing
+- ✅ HTTPS/TLS 1.3
+- ✅ Certificados de confianza
+- ✅ CORS configurado
+- ✅ Cookies seguras
+
+### Frontend
+- ✅ Login página
+- ✅ Registro página
+- ✅ Dashboard personalizado
+- ✅ Menú con usuario
+- ✅ Responsive design
+
+### Backend
+- ✅ API RESTful
+- ✅ Django ORM
+- ✅ Validaciones
+- ✅ Error handling
+- ✅ Logging
+
+---
+
+## 🛠️ Troubleshooting
+
+### Error: "mkcert: comando no encontrado"
+```powershell
+choco install mkcert
+```
+
+### Error: "Port 8000 already in use"
+```powershell
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+```
+
+### Error: "Certificados no confían"
+Ver: [MKCERT_TLS_1.3_GUIA.md](MKCERT_TLS_1.3_GUIA.md) → Troubleshooting
+
+### Error: "No se puede conectar al backend"
+Ver: [GUIA_PASO_A_PASO.md](GUIA_PASO_A_PASO.md) → Problemas Comunes
+
+---
+
+## 📖 Más Información
+
+### Para Usuarios Nuevos
+→ [GUIA_PASO_A_PASO.md](GUIA_PASO_A_PASO.md) (10 minutos)
+
+### Para Técnicos
+→ [ARQUITECTURA_VISUAL.md](ARQUITECTURA_VISUAL.md) (diagramas completos)
+
+### Para Seguridad
+→ [MKCERT_TLS_1.3_GUIA.md](MKCERT_TLS_1.3_GUIA.md) (TLS 1.3 explicado)
+
+### Para Autenticación
+→ [LOGIN_AUTENTICACION_DOCUMENTACION.md](LOGIN_AUTENTICACION_DOCUMENTACION.md) (Argon2id)
+
+### Índice Completo
+→ [INDICE_DOCUMENTACION.md](INDICE_DOCUMENTACION.md)
+
+---
+
+## 🎯 Próximos Pasos
+
+1. **Corto Plazo**:
+   - [ ] JWT tokens para sesiones robustas
+   - [ ] 2FA (autenticación de dos factores)
+   - [ ] Email verification
+
+2. **Mediano Plazo**:
+   - [ ] Role-Based Access Control (RBAC)
+   - [ ] Audit logging
+   - [ ] Rate limiting
+
+3. **Largo Plazo**:
+   - [ ] Deployment a producción
+   - [ ] Monitoreo centralizado
+   - [ ] CI/CD pipeline
+
+---
+
+## 📋 Credenciales de Prueba
+
+Para la primera prueba:
+
+**Registro:**
+- Nombre: Test User
+- Email: test@ejemplo.com
+- Contraseña: TestSegura123
+
+**Login:**
+- Email: test@ejemplo.com
+- Contraseña: TestSegura123
+
+---
+
+## 🌍 Tecnologías Utilizadas
+
+### Frontend
+- Vue.js 3.5.26
+- Vite 7.3.0
+- Vue Router 4.6.4
+- Axios 1.13.2
+
+### Backend
+- Django 5.2.9
+- Django REST Framework 3.15.0
+- argon2-cffi 21.3.0
+- django-extensions 3.2.3
+
+### Seguridad
+- TLS 1.3 (RFC 8446)
+- mkcert (certificados locales)
+- Argon2id (password hashing)
+
+---
+
+## 📞 Soporte
+
+**¿Problemas?**
+1. Lee: [GUIA_PASO_A_PASO.md](GUIA_PASO_A_PASO.md)
+2. Valida: `python validate_config.py`
+3. Busca en: [INDICE_DOCUMENTACION.md](INDICE_DOCUMENTACION.md)
+
+**¿Preguntas técnicas?**
+Ver: [ARQUITECTURA_VISUAL.md](ARQUITECTURA_VISUAL.md)
+
+---
+
+**SMFI v1.0** - Sistema Seguro y Moderno
+**Estado**: ✅ Listo para Desarrollo y Producción
+**Fecha**: 29 de Abril de 2026
+**Protocolo**: TLS 1.3 (RFC 8446)
+**Hashing**: Argon2id (Password Hashing Competition)
+
+│   │   └── urls.py (✓ Con nuevas rutas)
+│   ├── Plantacion/
+│   ├── Alerta/
+│   └── config/
+│
+├── frontend/SMFI/
+│   ├── package.json
+│   ├── src/
+│   │   ├── services/
+│   │   │   └── authService.js (✓ Nuevo)
+│   │   ├── views/
+│   │   │   ├── auth/
+│   │   │   │   ├── Login.vue (✓ Nuevo)
+│   │   │   │   └── Registro.vue (✓ Nuevo)
+│   │   │   └── usuario/
+│   │   │       └── Inicio.vue (✓ Actualizado)
+│   │   ├── router/
+│   │   │   ├── index.js (✓ Con guards)
+│   │   │   └── modulos/
+│   │   │       └── Auth.routes.js (✓ Nuevo)
+│   │   └── components/
+│   │       ├── menuVar.vue (✓ Con logout)
+│   │       └── layouts/
+│   │           └── authLayout.vue (✓ Nuevo)
+│   └── vite.config.js
+│
+└── LOGIN_AUTENTICACION_DOCUMENTACION.md (✓ Documentación completa)
+```
+
+---
+
+## Flujo de Aplicación
+
+```
+1. Usuario accede a: http://localhost:5173
+   ↓
+2. Si NO está autenticado → Redirige a /login
+   ↓
+3. Usuario se registra o inicia sesión
+   ↓
+4. Backend valida y hashea contraseña con Argon2id
+   ↓
+5. Frontend guarda usuario en localStorage
+   ↓
+6. Usuario accede al dashboard
+   ↓
+7. Puede ver plantaciones y monitoreo
+   ↓
+8. Clic en "Cerrar Sesión" → Limpia localStorage y vuelve a /login
+```
+
+## Seguridad - TLS 1.3 con mkcert
+
+La comunicación entre frontend y backend está configurada con **TLS 1.3** (HTTPS seguro) usando **mkcert** para certificados confiables.
+
+### 🚀 Activar HTTPS/TLS 1.3 (Recomendado - Método mkcert)
+
+**Paso 1: Instalar mkcert**
+
+Windows (Chocolatey):
+```powershell
+choco install mkcert
+mkcert -install
+mkcert localhost 127.0.0.1
+```
+
+macOS:
+```bash
+brew install mkcert
+mkcert -install
+mkcert localhost 127.0.0.1
+```
+
+Linux:
+```bash
+sudo apt install mkcert
+mkcert -install
+mkcert localhost 127.0.0.1
+```
+
+✅ Se crearán: `localhost+1.pem` y `localhost+1-key.pem`
+
+**Paso 2: Instalar dependencias Backend**
+```bash
+cd backend
+pip install django-extensions Werkzeug pyOpenSSL
+```
+
+**Paso 3: Ejecutar con HTTPS/TLS 1.3**
+
+Terminal 1 - Backend:
+```bash
+cd backend
+python run_https.py
+```
+📍 `https://localhost:8000` (TLS 1.3)
+
+Terminal 2 - Frontend:
+```bash
+cd frontend/SMFI
+npm run dev
+```
+📍 `https://localhost:5173` (TLS 1.3)
+
+**Acceder a**: `https://localhost:5173`
+
+✅ **SIN advertencias** (certificados confían automáticamente)
+
+---
+
+## 📖 Documentación
+
+**Nuevo y Recomendado**: [MKCERT_TLS_1.3_GUIA.md](MKCERT_TLS_1.3_GUIA.md) ✨
+
+Inicio Rápido: [MKCERT_INICIO_RAPIDO.txt](MKCERT_INICIO_RAPIDO.txt)
+
+---
+
+## Modo HTTP Normal (Sin HTTPS)
+
+Si prefieres trabajar sin HTTPS en desarrollo:
+
+```bash
+# Backend - HTTP normal
+cd backend
+python manage.py runserver
+
+# Frontend - HTTP normal
+cd frontend/SMFI
+npm run dev
+# Se ejecutará en: http://localhost:5173
+```
+
+---
+
+✅ **Hashing de Contraseñas**
+- Algoritmo: Argon2id
+- Salt: Generado automáticamente por usuario
+- Memoria: 65536 KB
+- Iteraciones: 3
+- Paralelismo: 4
+
+✅ **Protección de Rutas**
+- Router guard valida autenticación
+- LocalStorage con token de usuario
+- Email único por usuario
+
+✅ **CORS Configurado**
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:8000`
+
+---
+
+## Ejemplos de Uso
+
+### 1. Registrar usuario
+```bash
+curl -X POST http://localhost:8000/api/users/register/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Juan Pérez",
+    "correo": "juan@example.com",
+    "password": "MiContraseña123"
+  }'
+```
+
+### 2. Iniciar sesión
+```bash
+curl -X POST http://localhost:8000/api/users/login/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "correo": "juan@example.com",
+    "password": "MiContraseña123"
+  }'
+```
+
+### 3. Cambiar contraseña
+```bash
+curl -X POST http://localhost:8000/api/users/change-password/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "usuario_id": 1,
+    "old_password": "MiContraseña123",
+    "new_password": "NuevaContraseña456"
+  }'
+```
+
+---
+
+## Troubleshooting
+
+### Error: "ConnectionRefused" en frontend
+- Verifica que el backend esté corriendo en `http://localhost:8000`
+
+### Error: "argon2-cffi not found"
+```bash
+pip install argon2-cffi
+```
+
+### Error: "CORS error"
+- CORS ya está configurado. Verifica que esté en `localhost:5173`
+
+### BD no tiene datos
+```bash
+python manage.py migrate
+python manage.py createsuperuser  # (opcional) crear admin
+```
+
+---
+
+## Documentación Completa
+
+Ver archivo: `LOGIN_AUTENTICACION_DOCUMENTACION.md`
+
+Contiene:
+- ✅ Explicación detallada de Argon2id
+- ✅ Arquitectura de seguridad
+- ✅ Componentes frontend
+- ✅ Endpoints de API
+- ✅ Casos de uso y pruebas
+- ✅ Variables de localStorage
+- ✅ Recomendaciones futuras
+
+---
+
+## Requisitos
+
+- **Python**: 3.8+
+- **Node.js**: 20.19.0 o superior
+- **pip**: Para instalar paquetes Python
+- **npm**: Para instalar paquetes Node.js
+
+---
+
+## Licencia
+
+© 2026 SMFI - Sistema de Monitoreo de Fincas Inteligente
+
+---
+
+## Soporte
+
+Para consultas sobre:
+- **Autenticación**: Ver LOGIN_AUTENTICACION_DOCUMENTACION.md
+- **Backend**: Revisar archivos en backend/
+- **Frontend**: Revisar archivos en frontend/SMFI/src/
+
+**Última actualización**: 29 de Abril de 2026
+**Versión**: 1.0 - Completa con autenticación Argon2id
 
 
 python manage makemigrations

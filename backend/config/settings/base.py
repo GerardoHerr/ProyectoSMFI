@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+from flask import config
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +23,45 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--aqhv)nh9+a*p3i=w#&grp)cbyujs)179u0fmn!^o5e4ydpc8@'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+ENCRYPTION_KEY = config('ENCRYPTION_KEY')
 
 ALLOWED_HOSTS = ['*']
+
+# ============================================================================
+# CONFIGURACIÓN DE SEGURIDAD - TLS 1.3 Y HTTPS
+# ============================================================================
+
+# Forzar HTTPS en producción
+SECURE_SSL_REDIRECT = False  # Cambiar a True en producción
+
+# Especificar versión mínima de TLS (1.3)
+SECURE_SSL_VERSION = 5  # TLS 1.3 = 5, TLS 1.2 = 4
+
+# Headers de seguridad
+SECURE_HSTS_SECONDS = 31536000  # 1 año
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Cookies seguras
+SESSION_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Content Security Policy
+SECURE_CONTENT_SECURITY_POLICY = {
+    "default-src": ["'self'"],
+    "script-src": ["'self'", "'unsafe-inline'"],
+    "style-src": ["'self'", "'unsafe-inline'"],
+    "connect-src": ["'self'", "https://localhost:5173", "https://localhost:8000"],
+}
 
 USE_TZ = True
 TIME_ZONE = 'America/Guayaquil'
@@ -41,6 +77,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'users',
     'Plantacion',
     'Alerta',
@@ -92,11 +129,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'SMFI_DB',
-        'USER': 'user',  # Cambia a tu usuario de MySQL
-        'PASSWORD': 'pass',  # Pon tu contraseña de root aquí
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },

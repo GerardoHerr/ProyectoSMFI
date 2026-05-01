@@ -1,0 +1,69 @@
+🔒 TLS 1.3 CON MKCERT - INICIO RÁPIDO
+===================================
+
+✨ VENTAJAS:
+- ✅ Sin OpenSSL
+- ✅ Certificados confiables (sin advertencias)
+- ✅ Un comando
+
+🚀 3 PASOS:
+
+PASO 1: Instalar mkcert + Generar Certificados
+================================================
+
+Windows (PowerShell como Admin):
+  choco install mkcert
+  mkcert -install
+  mkcert localhost 127.0.0.1
+
+macOS:
+  brew install mkcert
+  mkcert -install
+  mkcert localhost 127.0.0.1
+
+Linux:
+  sudo apt install mkcert
+  mkcert -install
+  mkcert localhost 127.0.0.1
+
+✅ Se crearán: localhost+1.pem y localhost+1-key.pem
+
+PASO 2: Instalar Dependencias Backend
+======================================
+  cd backend
+  pip install django-extensions Werkzeug pyOpenSSL
+
+PASO 3: Ejecutar Backend + Frontend
+====================================
+
+Terminal 1 (Backend HTTPS):
+  cd backend
+  python run_https.py
+  
+📍 https://localhost:8000 (TLS 1.3)
+
+Terminal 2 (Frontend HTTPS):
+  cd frontend/SMFI
+  npm run dev
+  
+📍 https://localhost:5173 (TLS 1.3)
+
+🌐 ACCEDER:
+  https://localhost:5173
+
+✅ SIN advertencias en el navegador
+   (Los certificados ya son de confianza en tu sistema)
+
+🔍 VERIFICAR TLS 1.3:
+  1. DevTools (F12)
+  2. Pestaña "Security"
+  3. Busca "Protocol": TLS 1.3 ✅
+
+📖 DOCUMENTACIÓN COMPLETA:
+  Ver: MKCERT_TLS_1.3_GUIA.md
+
+¿PROBLEMAS?
+===========
+- mkcert no instalado: Descarga de https://github.com/FiloSottile/mkcert
+- django-extensions no instala: pip install django-extensions Werkzeug pyOpenSSL
+- Puerto 8000 en uso: Cierra otra instancia o usa otro puerto

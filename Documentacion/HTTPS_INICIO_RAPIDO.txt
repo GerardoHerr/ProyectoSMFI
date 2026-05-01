@@ -1,0 +1,66 @@
+INICIO RÁPIDO - TLS 1.3 / HTTPS
+================================
+
+📋 PRE-REQUISITOS:
+- OpenSSL instalado (Windows 10+ incluye)
+- Python 3.8+
+- Node.js 20.19.0+
+
+🚀 3 PASOS PARA ACTIVAR HTTPS/TLS 1.3:
+
+PASO 1: Generar Certificados
+=============================
+Abre PowerShell o CMD en la carpeta raíz del proyecto:
+
+Windows (PowerShell):
+  .\generate-certs.ps1
+
+Windows (CMD):
+  .\generate-certs.bat
+
+Linux/Mac:
+  ./generate-certs.sh
+
+✅ Se crearán dos archivos en: certs/
+   - server.key
+   - server.crt
+
+PASO 2: Ejecutar Backend (Terminal 1)
+======================================
+  cd backend
+  python runserver_https.py
+
+📍 Backend en: https://localhost:8000 (TLS 1.3)
+
+PASO 3: Ejecutar Frontend (Terminal 2)
+======================================
+  cd frontend/SMFI
+  npm run dev
+
+📍 Frontend en: https://localhost:5173 (TLS 1.3)
+
+✅ ¡LISTO! La comunicación está encriptada con TLS 1.3
+
+⚠️ NOTAS:
+- El navegador mostrará advertencia por certificado autofirmado (normal)
+- Haz clic en "Avanzado" → "Continuar"
+- Accede a https://localhost:5173
+
+🔍 VERIFICAR TLS 1.3:
+- Abre DevTools (F12)
+- Ve a "Security" tab
+- Busca "Protocol": Debe decir "TLS 1.3"
+
+📖 DOCUMENTACIÓN COMPLETA:
+Ver: TLS_1.3_CONFIGURACION.md
+
+❓ PROBLEMAS:
+- Error "openssl not found": Instala OpenSSL
+  https://slproweb.com/products/Win32OpenSSL.html
+- Certificados no encontrados: Ejecuta step 1 primero
+- Conexión rechazada: Reinicia el navegador
+
+✨ Modo sin HTTPS (desarrollo simple):
+  Backend:  python manage.py runserver
+  Frontend: npm run dev
+  (Esto usa HTTP normal, sin encriptación)
