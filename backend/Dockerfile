@@ -3,6 +3,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+#comentario de pruebas en el docker
+
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     build-essential \
