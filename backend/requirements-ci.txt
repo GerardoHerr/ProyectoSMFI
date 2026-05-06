@@ -6,7 +6,6 @@ Django==5.2.9
 djangorestframework==3.14.0
 django-extensions==3.2.3
 idna==3.8
-mysqlclient==2.2.7
 pycparser==2.22
 requests==2.32.3
 cryptography==46.0.3
@@ -18,4 +17,3 @@ pyOpenSSL==24.0.0
 PyMySQL==1.1.2
 python-dotenv==1.2.1
 tzdata==2025.3
-
