@@ -30,6 +30,7 @@ jobs:
     - name: Run Tests
       env:
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
         DEBUG: "False"
       run: |
         python manage.py test
