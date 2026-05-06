@@ -12,7 +12,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: ProyectoSMFI/backend  
+        working-directory: backend  
 
     steps:
     - uses: actions/checkout@v4
