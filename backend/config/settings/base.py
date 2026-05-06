@@ -143,7 +143,7 @@ DATABASES = {
     }
 }
 
-# comentaio para probar en local con sqlite
+# comentaio para probar en local con sqlite aaaa
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -163,6 +163,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+#aaaaaaaa
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
