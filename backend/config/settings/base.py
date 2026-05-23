@@ -94,8 +94,8 @@ DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.mysql'),
         'NAME': os.environ.get('DB_NAME', 'smfi_db'),
-        'USER': os.environ.get('DB_USER', 'smfi_user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'smfi_password'),
+        'USER': os.environ.get('DB_USER', 'user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'pass'),
         'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {

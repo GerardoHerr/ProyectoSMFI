@@ -8,8 +8,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: ${DB_NAME:-smfi_db}
-      MYSQL_USER: ${DB_USER:-smfi_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-smfi_password}
+      MYSQL_USER: ${DB_USER:-user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-pass}
     ports:
       - "3306"
     volumes:
@@ -33,8 +33,8 @@ services:
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
       DB_ENGINE: ${DB_ENGINE:-django.db.backends.mysql}
       DB_NAME: ${DB_NAME:-smfi_db}
-      DB_USER: ${DB_USER:-smfi_user}
-      DB_PASSWORD: ${DB_PASSWORD:-smfi_password}
+      DB_USER: ${DB_USER:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-pass}
       DB_HOST: ${DB_HOST:-db}
       DB_PORT: ${DB_PORT:-3306}
     ports:
