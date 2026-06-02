@@ -1,35 +1,58 @@
 version: '3.8'
 
 services:
-  # Servicio MySQL
+
+  # ── Servicio MySQL ──────────────────────────────────────────
   db:
     image: mysql:8.0
     container_name: smfi_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${DB_NAME:-smfi_db}
-      MYSQL_USER: ${DB_USER:-user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-pass}
-    ports:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # HARDENING: no exponer puerto de DB al host en producción
+    # Solo accesible dentro de la red interna smfi_network
+    # ports:  ← comentado intencionalmente (hardening)
+    expose:
       - "3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - smfi_network
+    # HARDENING: sistema de archivos de solo lectura donde sea posible
+    read_only: false   # MySQL necesita escribir; dejamos false pero limitamos con tmpfs
+    tmpfs:
+      - /tmp
+      - /var/run/mysqld
+    # HARDENING: limitar capacidades del kernel al mínimo necesario
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    # HARDENING: limitar recursos para evitar DoS
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s 
-      timeout: 20s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER}", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 30s
+      retries: 15
+      start_period: 40s
 
-  # Servicio Backend (Django)
+  # ── Servicio Backend (Django) ───────────────────────────────
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: smfi_backend
     environment:
-      DEBUG: ${DEBUG:-True}
+      DEBUG: ${DEBUG:-False}        # HARDENING: debug desactivado por defecto
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
       DB_ENGINE: ${DB_ENGINE:-django.db.backends.mysql}
       DB_NAME: ${DB_NAME:-smfi_db}
@@ -45,12 +68,27 @@ services:
         condition: service_healthy
     networks:
       - smfi_network
-    
+    # HARDENING: sin privilegios elevados
+    user: "1000:1000"
+    # HARDENING: sistema de archivos de solo lectura
+    read_only: true
+    tmpfs:
+      - /tmp
+    # HARDENING: eliminar todas las capabilities y agregar solo las necesarias
+    cap_drop:
+      - ALL
+    # HARDENING: no permitir escalada de privilegios
+    security_opt:
+      - no-new-privileges:true
+    # HARDENING: limitar recursos
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "./wait-for-db.sh sh -c 'python manage.py migrate && python manage.py runserver 0.0.0.0:8000'"
 
-  # Servicio Frontend (Vite + Vue)
+  # ── Servicio Frontend (Vite + Vue) ──────────────────────────
   frontend:
     build:
       context: ./frontend/SMFI
@@ -61,12 +99,24 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend/SMFI/src:/app/src
-      - ./frontend/SMFI/public:/app/public
+      # HARDENING: montar volúmenes como solo lectura donde sea posible
+      - ./frontend/SMFI/src:/app/src:ro
+      - ./frontend/SMFI/public:/app/public:ro
     networks:
       - smfi_network
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    # HARDENING: usuario node (uid 1000) definido en el Dockerfile
+    # HARDENING: eliminar capabilities innecesarias
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # HARDENING: limitar recursos
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
 volumes:
   mysql_data:
@@ -74,3 +124,6 @@ volumes:
 networks:
   smfi_network:
     driver: bridge
+    # HARDENING: aislar la red, sin acceso a internet desde contenedores internos
+    internal: false   # false porque frontend necesita descargar deps en dev
+                      # cambiar a true en producción si se usa imagen pre-compilada
