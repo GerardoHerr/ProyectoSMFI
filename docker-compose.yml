@@ -86,7 +86,9 @@ services:
         limits:
           memory: 256M
     command: >
-      sh -c "./wait-for-db.sh sh -c 'python manage.py migrate && python manage.py runserver 0.0.0.0:8000'"
+      sh -c "until nc -z db 3306; do echo 'Esperando MySQL...' && sleep 2; done &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
 
   # ── Servicio Frontend (Vite + Vue) ──────────────────────────
   frontend:
@@ -99,9 +101,9 @@ services:
     depends_on:
       - backend
     volumes:
-      # HARDENING: montar volúmenes como solo lectura donde sea posible
-      - ./frontend/SMFI/src:/app/src:ro
-      - ./frontend/SMFI/public:/app/public:ro
+      # Permitir lectura y escritura para que Vite pueda crear archivos temporales
+      - ./frontend/SMFI/src:/app/src
+      - ./frontend/SMFI/public:/app/public
     networks:
       - smfi_network
     environment:

@@ -40,8 +40,11 @@ RUN npm ci --frozen-lockfile
 # pero copiamos igual para que funcione sin volumen
 COPY --chown=node:node . .
 
-# Cambiar al usuario sin privilegios ANTES de exponer
-USER node
+# Permitir que node escriba en el directorio (para archivos temporales de Vite)
+RUN chmod -R 755 /app
+
+# Nota: En desarrollo corre como root para evitar problemas de permisos con volúmenes montados
+# En producción, usar USER node antes de ejecutar
 
 EXPOSE 5173
 

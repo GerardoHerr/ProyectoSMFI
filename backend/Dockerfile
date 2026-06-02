@@ -48,12 +48,10 @@ RUN groupadd --system appgroup && \
 # Copiar dependencias Python desde el builder
 COPY --from=builder /install /usr/local
 
-# Copiar el script de espera y el código
-COPY --chown=appuser:appgroup wait-for-db.sh .
+# Copiar el código
 COPY --chown=appuser:appgroup . .
 
-RUN chmod +x wait-for-db.sh && \
-    chmod -R 550 /app
+RUN chmod -R 755 /app
 
 # Cambiar al usuario sin privilegios
 USER appuser
